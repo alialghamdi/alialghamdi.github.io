@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Lab 3: Quick introduction to YARN | Welcome to Intro to Big Data</title>
+    <meta name="description" content="Very simple tutorials for Big Data">
+    
+    
+    <link rel="preload" href="/assets/css/0.styles.7f4071b7.css" as="style"><link rel="preload" href="/assets/js/app.9bea2965.js" as="script"><link rel="preload" href="/assets/js/2.37eece0d.js" as="script"><link rel="preload" href="/assets/js/8.b9a5f612.js" as="script"><link rel="prefetch" href="/assets/js/10.d7e311cb.js"><link rel="prefetch" href="/assets/js/11.47ba2160.js"><link rel="prefetch" href="/assets/js/3.e63ba4cb.js"><link rel="prefetch" href="/assets/js/4.b15ff3a5.js"><link rel="prefetch" href="/assets/js/5.6eb9535c.js"><link rel="prefetch" href="/assets/js/6.0c1684b0.js"><link rel="prefetch" href="/assets/js/7.c0592412.js"><link rel="prefetch" href="/assets/js/9.c43961b5.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.7f4071b7.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-navbar"><!----> <div class="sidebar-mask"></div> <aside class="sidebar"><!---->  <ul class="sidebar-links"><li><a href="/" class="sidebar-link">Intro to Big Data</a></li><li><a href="/lab1.html" class="sidebar-link">Lab 1: Setting up the environment</a></li><li><a href="/lab2.html" class="sidebar-link">Lab 2: Quick introduction to HDFS</a></li><li><a href="/lab3.html" class="active sidebar-link">Lab 3: Quick introduction to YARN</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/lab3.html#manage-yarn-through-cloudera-manager-ui-and-resourcemanager-ui" class="sidebar-link">Manage YARN through Cloudera Manager UI and ResourceManager UI</a></li><li class="sidebar-sub-header"><a href="/lab3.html#manage-yarn-through-cli" class="sidebar-link">Manage YARN through CLI</a></li><li class="sidebar-sub-header"><a href="/lab3.html#run-the-wordcount-application-on-hitchhiker’s-guide-to-the-galaxy" class="sidebar-link">Run the WordCount application on Hitchhiker’s Guide to the Galaxy:</a></li></ul></li><li><a href="/lab4.html" class="sidebar-link">Lab 4: Twitter tweets sentiment analysis</a></li><li><a href="/lab5.html" class="sidebar-link">Lab 5: Stream Logs and Visualize Monitoring</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="lab-3-quick-introduction-to-yarn"><a href="#lab-3-quick-introduction-to-yarn" class="header-anchor">#</a> Lab 3: Quick introduction to YARN</h1> <p><strong>Objective:</strong></p> <p>To Use the Cloudera Manager UI and the ResourceManager UI to view and manage YARN status and configuration properties; Use CLI commands and the YARN API to manager YARN service; Run YARN application from CLI.</p> <p><strong>Successful Outcome:</strong></p> <ol><li>Explore Cloudera Manager UI and ResourceManager UI.</li> <li>Use CLI user and administrator commands and run several simple YARN API calls.</li> <li>Successfully run and monitor a WordCount job.</li></ol> <h2 id="manage-yarn-through-cloudera-manager-ui-and-resourcemanager-ui"><a href="#manage-yarn-through-cloudera-manager-ui-and-resourcemanager-ui" class="header-anchor">#</a> Manage YARN through Cloudera Manager UI and ResourceManager UI</h2> <ol><li><p>Access Cloudera Manager <code>http://quickstart.cloudera:7180</code></p> <p><img src="/assets/img/access_yarn_from_cmui.e0191cc0.png" alt="YA1"></p></li> <li><p>Click on the YARN service, and it should direct you to this.</p> <p><img src="/assets/img/webui_cmui_resourcemanager_yarn.cc9e7945.png" alt="YA2"></p></li> <li><p>From the service page choose Web UI.</p></li> <li><p>Check if there are any application running, ran or will run. (There shouldn't be any)</p></li></ol> <h2 id="manage-yarn-through-cli"><a href="#manage-yarn-through-cli" class="header-anchor">#</a> Manage YARN through <code>CLI</code></h2> <ol><li><p>Go to terminal.</p></li> <li><p>Run the command to list all applications that are running, ran or submitted to YARN:</p> <p><code>yarn application -list</code></p></li> <li><p>Run the command to list how many nodes that YARN is using:</p> <p><code>yarn node -list</code></p></li> <li><p>Check the logs of YARN:</p> <p><code>yarn logs | more</code></p></li></ol> <blockquote><p>Why didn't this work?</p></blockquote> <h2 id="run-the-wordcount-application-on-hitchhiker’s-guide-to-the-galaxy"><a href="#run-the-wordcount-application-on-hitchhiker’s-guide-to-the-galaxy" class="header-anchor">#</a> Run the WordCount application on Hitchhiker’s Guide to the Galaxy:</h2> <ol><li><p>In the terminal, locate the YARN jar for MapReduce WordCount JAR. (Under labs/wordcount/wordcount.jar)</p></li> <li><p>Use YARN JAR command to run the application:</p> <p><code>yarn jar /home/cloudera/labs/wordcount/wordcount.jar org.myorg.WordCount /user/cloudera/wordcount/hitch.txt /user/cloudera/wordcount/results</code></p></li> <li><p>Go to ResourceManager UI and notice the application running. (http://quickstart.cloudera:8088/cluster/apps)</p></li> <li><p>From the terminal read the file of the result:</p> <p><code>hdfs dfs -cat /user/cloudera/wordcount/results/part-r-00000</code></p></li> <li><p>Get the application ID from the ResourceManager UI and run the yarn logs command and see the output:</p> <p><code>yarn logs -applicationId application_1575833451209_0001 | more</code></p></li> <li><p>Check the WordCount.java application and get an idea of how map and reduce are implemented:</p> <div class="language- extra-class"><pre class="language-text"><code>package org.myorg;
+
+import java.io.IOException;
+import java.util.regex.Pattern;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+
+import org.apache.log4j.Logger;
+
+public class WordCount extends Configured implements Tool {
+
+  private static final Logger LOG = Logger.getLogger(WordCount.class);
+
+  public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(new WordCount(), args);
+    System.exit(res);
+  }
+
+  public int run(String[] args) throws Exception {
+    Job job = Job.getInstance(getConf(), &quot;wordcount&quot;);
+    job.setJarByClass(this.getClass());
+    // Use TextInputFormat, the default unless job.setInputFormatClass is used
+    FileInputFormat.addInputPath(job, new Path(args[0]));
+    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    job.setMapperClass(Map.class);
+    job.setReducerClass(Reduce.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+    return job.waitForCompletion(true) ? 0 : 1;
+  }
+
+  public static class Map extends Mapper&lt;LongWritable, Text, Text, IntWritable&gt; {
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+    private long numRecords = 0;    
+    private static final Pattern WORD_BOUNDARY = Pattern.compile(&quot;\\s*\\b\\s*&quot;);
+
+    public void map(LongWritable offset, Text lineText, Context context)
+        throws IOException, InterruptedException {
+      String line = lineText.toString();
+      Text currentWord = new Text();
+      for (String word : WORD_BOUNDARY.split(line)) {
+        if (word.isEmpty()) {
+            continue;
+        }
+            currentWord = new Text(word);
+            context.write(currentWord,one);
+        }
+    }
+  }
+
+  public static class Reduce extends Reducer&lt;Text, IntWritable, Text, IntWritable&gt; {
+    @Override
+    public void reduce(Text word, Iterable&lt;IntWritable&gt; counts, Context context)
+        throws IOException, InterruptedException {
+      int sum = 0;
+      for (IntWritable count : counts) {
+        sum += count.get();
+      }
+      context.write(word, new IntWritable(sum));
+    }
+  }
+}
+</code></pre></div></li></ol> <div class="language- extra-class"><pre class="language-text"><code></code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/lab2.html" class="prev">Lab 2: Quick introduction to HDFS</a></span> <span class="next"><a href="/lab4.html">Lab 4: Twitter tweets sentiment analysis</a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.9bea2965.js" defer></script><script src="/assets/js/2.37eece0d.js" defer></script><script src="/assets/js/8.b9a5f612.js" defer></script>
+  </body>
+</html>

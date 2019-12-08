@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Lab 4: Twitter tweets sentiment analysis | Welcome to Intro to Big Data</title>
+    <meta name="description" content="Very simple tutorials for Big Data">
+    
+    
+    <link rel="preload" href="/assets/css/0.styles.7f4071b7.css" as="style"><link rel="preload" href="/assets/js/app.9bea2965.js" as="script"><link rel="preload" href="/assets/js/2.37eece0d.js" as="script"><link rel="preload" href="/assets/js/4.b15ff3a5.js" as="script"><link rel="prefetch" href="/assets/js/10.d7e311cb.js"><link rel="prefetch" href="/assets/js/11.47ba2160.js"><link rel="prefetch" href="/assets/js/3.e63ba4cb.js"><link rel="prefetch" href="/assets/js/5.6eb9535c.js"><link rel="prefetch" href="/assets/js/6.0c1684b0.js"><link rel="prefetch" href="/assets/js/7.c0592412.js"><link rel="prefetch" href="/assets/js/8.b9a5f612.js"><link rel="prefetch" href="/assets/js/9.c43961b5.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.7f4071b7.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-navbar"><!----> <div class="sidebar-mask"></div> <aside class="sidebar"><!---->  <ul class="sidebar-links"><li><a href="/" class="sidebar-link">Intro to Big Data</a></li><li><a href="/lab1.html" class="sidebar-link">Lab 1: Setting up the environment</a></li><li><a href="/lab2.html" class="sidebar-link">Lab 2: Quick introduction to HDFS</a></li><li><a href="/lab3.html" class="sidebar-link">Lab 3: Quick introduction to YARN</a></li><li><a href="/lab4.html" class="active sidebar-link">Lab 4: Twitter tweets sentiment analysis</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/lab4.html#access-hue-ui" class="sidebar-link">Access HUE UI</a></li><li class="sidebar-sub-header"><a href="/lab4.html#importing-the-dataset" class="sidebar-link">Importing the dataset</a></li><li class="sidebar-sub-header"><a href="/lab4.html#process-and-compute-the-sentiment" class="sidebar-link">Process and compute the sentiment</a></li><li class="sidebar-sub-header"><a href="/lab4.html#let-s-do-some-analysis" class="sidebar-link">Let's do some analysis</a></li></ul></li><li><a href="/lab5.html" class="sidebar-link">Lab 5: Stream Logs and Visualize Monitoring</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="lab-4-twitter-tweets-sentiment-analysis"><a href="#lab-4-twitter-tweets-sentiment-analysis" class="header-anchor">#</a> Lab 4: Twitter tweets sentiment analysis</h1> <p><strong>Objective:</strong></p> <p>To use Hive, HUE, HDFS and YARN to compute the sentiment of twitter tweets using SQL commands.</p> <p><strong>Successful Outcome:</strong></p> <ol><li>Configuring Hive to add new jars.</li> <li>Use Hive SQL lines to manipulate files and show meaningful outputs.</li> <li>Utilize HUE real-time editors.</li></ol> <p>In this exercise, we will load twitter tweets about the blockbuster movie of 2019 The Avengers Endgame. We will analyze the sentiment of the tweets against AFINN dictionary.</p> <h2 id="access-hue-ui"><a href="#access-hue-ui" class="header-anchor">#</a> Access HUE UI</h2> <ol><li><p>Using the browser, access HUE UI. (http://quickstart.cloudera:8888)</p></li> <li><p>Credientials for the log-in screen is cloudera and password is cloudera:</p> <p><img src="/assets/img/hueui.d9924730.png" alt="HUE1"></p></li> <li><p>When you get the pop-up to check Hue 4, just click on the X sign:</p> <p><img src="/assets/img/hueui-1.a65cdf80.png" alt="HUE2"></p></li> <li><p>There are multiple options to use for HUE UI, we will start using them in the next section:</p> <p><img src="/assets/img/hueui-2.92bd54ca.png" alt="HUE3"></p></li></ol> <h2 id="importing-the-dataset"><a href="#importing-the-dataset" class="header-anchor">#</a> Importing the dataset</h2> <p>We will import the datasets needed for this exercise which are the tweets and the sentiments dictionary. We will use both the UI and the Hive Editor to import.</p> <ol><li><p>We will import first the dictionary from the Hive Editor, access it through the UI as you can see in the last step in the earlier exercise.</p> <p><img src="/assets/img/hueui-3.a07f335d.png" alt="HUE4"></p></li> <li><p>The dataset is available in the labs HDFS location under (/user/cloudera/twitter_sentiment/dictionary.tsv). We will import it using the following SQL lines:</p> <div class="language- extra-class"><pre class="language-text"><code>CREATE EXTERNAL TABLE dictionary (
+    type string,
+    length int,
+    word string,
+    pos string,
+    stemmed string,
+    polarity string
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+STORED AS TEXTFILE
+LOCATION '/user/cloudera/twitter_sentiment/dictionary';
+</code></pre></div></li> <li><p>After copying the the lines to the editor, run them using the play button:</p> <p><img src="/assets/img/hueui-4.6393aa11.png" alt="HUE5"></p></li> <li><p>Now, let's add the tweets but through HUE UI, let's start by adding a table. Start by clicking on the + sign:</p> <p><img src="/assets/img/hueui-5.dfd2d6bb.png" alt="HUE6"></p></li> <li><p>Now, to add the file to the import wizard click on the end of Path field which is the .. button:</p> <p><img src="/assets/img/hueui-6.bac89622.png" alt="HUE7"></p></li> <li><p>Choose the file tweets.txt from the location <code>/user/cloudera/twitter_sentiment/</code></p> <p><img src="/assets/img/hueui-7.7acdfccb.png" alt="HUE8"></p></li> <li><p>After it's uploaded you'll see the UI expand with options and a preview of the data, click next:</p> <p><img src="/assets/img/hueui-8.87999fc7.png" alt="HUE9"></p></li> <li><p>Check the options in the submission page, but in our case we don't need to change anything, so go ahead and click Submit:</p> <p><img src="/assets/img/hueui-9.d6be81e9.png" alt="HUE10"></p></li> <li><p>Now you should be able to see both tables in the UI:</p> <p><img src="/assets/img/hueui-10.a5bd7988.png" alt="HUE11"></p></li> <li><p>Let's go back to the Hive editor again and start the next section.</p></li></ol> <h2 id="process-and-compute-the-sentiment"><a href="#process-and-compute-the-sentiment" class="header-anchor">#</a> Process and compute the sentiment</h2> <ol><li><p>Let's start with creating few views, starting with first of all to divide tweet text to an array of words:</p> <div class="language- extra-class"><pre class="language-text"><code>create view arraize_it as select id, words from tweets lateral view explode(sentences(lower(text))) dummy as words;
+</code></pre></div></li> <li><p>Now, let's explode each array into lines:</p> <div class="language- extra-class"><pre class="language-text"><code>create view explode_it as select id, word from arraize_it lateral view explode(words) dummy as word;
+</code></pre></div></li> <li><p>Now let's utilize the join function to pair words with their scores and compute the sentiment:</p> <div class="language- extra-class"><pre class="language-text"><code>create view compute_it as select
+    id,
+    explode_it.word,
+    case d.polarity
+      when  'negative' then -1
+      when 'positive' then 1
+      else 0 end as polarity
+ from explode_it left outer join dictionary d on explode_it.word = d.word;
+</code></pre></div></li> <li><p>Now let's label them with being positive, negative or neutral in a new table:</p> <div class="language- extra-class"><pre class="language-text"><code>create table tweets_sentiment stored as orc as select
+ id,
+ case
+   when sum( polarity ) &gt; 0 then 'positive'
+   when sum( polarity ) &lt; 0 then 'negative'
+   else 'neutral' end as sentiment
+from compute_it group by id;
+</code></pre></div></li> <li><p>In the end, let's put everything together and attach the results to the original tweets:</p> <div class="language- extra-class"><pre class="language-text"><code>CREATE TABLE tweets_final
+STORED AS ORC
+AS
+SELECT
+  t.*,
+  case s.sentiment
+    when 'positive' then 2
+    when 'neutral' then 1
+    when 'negative' then 0
+  end as sentiment
+FROM tweets t LEFT OUTER JOIN tweets_sentiment s on t.id = s.id;
+</code></pre></div></li> <li><p>Let's do a simple select to see the results:</p> <div class="language- extra-class"><pre class="language-text"><code>select * from tweets_final limit 30;
+</code></pre></div></li></ol> <h2 id="let-s-do-some-analysis"><a href="#let-s-do-some-analysis" class="header-anchor">#</a> Let's do some analysis</h2> <ol><li><p>Find out the top 25 retweeted tweets and whether they are neutral, positive or negative.</p> <div class="language- extra-class"><pre class="language-text"><code>SELECT distinct text, retweetcount, sentiment from tweets_final
+order by retweetcount desc
+limit 25;
+</code></pre></div></li> <li><p>Using the view explode_it, let's analyze what are the top 25 words used in the tweets in the dataset.</p> <div class="language- extra-class"><pre class="language-text"><code>select count(word) as cnt, word from explode_it
+group by word
+order by cnt desc;
+</code></pre></div></li> <li><p>Using tweets_final table, let's try to find how many tweets are positive, negative or neutral and chart them using a pie chart.</p> <div class="language- extra-class"><pre class="language-text"><code>select count(sentiment) as cnt, sentiment from tweets_final
+group by sentiment
+order by cnt desc;
+</code></pre></div></li> <li><p>Do this yourself, bring back the average number of retweets in this dataset.</p></li></ol></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/lab3.html" class="prev">Lab 3: Quick introduction to YARN</a></span> <span class="next"><a href="/lab5.html">Lab 5: Stream Logs and Visualize Monitoring</a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.9bea2965.js" defer></script><script src="/assets/js/2.37eece0d.js" defer></script><script src="/assets/js/4.b15ff3a5.js" defer></script>
+  </body>
+</html>
